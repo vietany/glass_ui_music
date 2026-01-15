@@ -1,0 +1,43 @@
+name: glass_ui
+description: A new Flutter project.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.5.0 <4.0.0' # Yêu cầu Dart mới nhất
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Icon đẹp
+  cupertino_icons: ^1.0.8
+
+  # --- DÀN SIÊU XE (PHIÊN BẢN MỚI NHẤT) ---
+  # Quản lý file (Bản 10.x là mới nhất)
+  file_picker: ^10.3.8
+
+  # Ghi âm (Bản 6.x hiệu năng cao, fix lỗi Linux)
+  record: ^6.1.2
+
+  # Đường dẫn hệ thống
+  path_provider: ^2.1.5
+
+  # Xin quyền (Bản 12.x hỗ trợ Android 14/15)
+  permission_handler: ^12.0.1
+
+  # Phát nhạc (Bản 6.x)
+  audioplayers: ^6.5.1
+
+  # Nhận dạng giọng nói (Bản 7.x - Đã FIX lỗi Registrar cũ kĩ)
+  speech_to_text: ^7.0.0
+
+  # Toán học xử lý âm thanh
+  fftea: ^1.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
