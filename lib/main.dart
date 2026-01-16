@@ -1,6 +1,11 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'logic/settings_manager.dart'; // Import Settings
 import 'screens/create_music_screen.dart';
+import 'widgets/liquid_background.dart';
+import 'widgets/liquid_nav_bar.dart';
+import 'widgets/glass_navigation_bar.dart'; // Import bản cũ
+import 'widgets/glass_showroom.dart'; // <--- THÊM IMPORT NÀY
+import 'widgets/glass_lab.dart';
 
 void main() {
   runApp(const MyApp());
@@ -8,17 +13,14 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
+        scaffoldBackgroundColor: const Color(0xFF0F0F1E),
         iconTheme: const IconThemeData(color: Colors.white),
-        sliderTheme: const SliderThemeData(
-          activeTrackColor: Colors.blueAccent,
-          thumbColor: Colors.white,
-        )
       ),
       home: const MainScreen(),
     );
@@ -32,36 +34,55 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  final PageController _pageController = PageController(initialPage: 2);
+  final SettingsManager _settings = SettingsManager(); // Gọi Singleton
   int _idx = 2;
+
   final List<Widget> _pages = [
-    const Center(child: Text("Home")),
-    const Center(child: Text("Explore")),
+    // --- THAY THẾ TAB HOME BẰNG SHOWROOM ---
+    const GlassLab(),
+
+    const Center(child: Text("Explore", style: TextStyle(color: Colors.white54, fontSize: 20))),
     const CreateMusicScreen(),
-    const Center(child: Text("Chat")),
-    const Center(child: Text("Profile")),
+    const Center(child: Text("Chat", style: TextStyle(color: Colors.white54, fontSize: 20))),
+    const Center(child: Text("Profile", style: TextStyle(color: Colors.white54, fontSize: 20))),
   ];
 
   @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onNavTap(int index) {
+    setState(() => _idx = index);
+    _pageController.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.easeOutQuad);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: SafeArea(
-        child: IndexedStack(index: _idx, children: _pages),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _idx,
-        onTap: (i) => setState(() => _idx = i),
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.grey,
-        items: const [
-           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-           BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Explore"),
-           BottomNavigationBarItem(icon: Icon(Icons.mic), label: "Create"),
-           BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
-           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-        ],
-      ),
+    // ListenableBuilder: Tự động vẽ lại màn hình khi Settings thay đổi
+    return ListenableBuilder(
+      listenable: _settings,
+      builder: (context, child) {
+        return LiquidBackground(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            extendBody: true,
+            body: PageView(
+              controller: _pageController,
+              onPageChanged: (i) => setState(() => _idx = i),
+              physics: const BouncingScrollPhysics(),
+              children: _pages,
+            ),
+
+            // --- LOGIC CHUYỂN ĐỔI NAVI ---
+            bottomNavigationBar: _settings.useLiquidNav
+                ? LiquidNavBar(currentIndex: _idx, onTap: _onNavTap)
+                : GlassNavigationBar(currentIndex: _idx, onTap: _onNavTap),
+          ),
+        );
+      },
     );
   }
 }
